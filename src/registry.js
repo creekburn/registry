@@ -51,9 +51,9 @@ export const parseIdentifier = (id) => {
   if (result) {
     const [__, packageName, version, _, handler = "default"] = result;
     const parsed = {
+      handler,
       name: packageName,
-      version,
-      handler
+      version
     };
     if (basename(handler) !== handler) {
       parsed.path = dirname(handler);

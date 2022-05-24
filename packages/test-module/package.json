@@ -1,10 +1,10 @@
 {
-  "name": "@creekburn/registry-test-module",
-  "version": "0.0.0",
   "description": "Test Module used to validate regitry is working.",
+  "license": "ISC",
   "main": "index.js",
+  "name": "@creekburn/registry-test-module",
   "scripts": {
     "test": "echo no tests"
   },
-  "license": "ISC"
+  "version": "0.0.0"
 }

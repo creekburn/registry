@@ -3,7 +3,13 @@ env:
 extends:
   - standard
   - prettier
+  - plugin:jsonc/recommended-with-json
+  - plugin:jsonc/prettier
 parserOptions:
   ecmaVersion: latest
   sourceType: module
-rules: {}
+plugins:
+  - sort-keys-fix
+rules:
+  sort-keys-fix/sort-keys-fix: warn
+  jsonc/sort-keys: warn
