@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Run Lint Fixes
+npm run eslint:fix
+npm run prettier:fix
+
+# Add changed files to index
+git add .
