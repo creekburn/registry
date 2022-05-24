@@ -34,9 +34,6 @@
   "license": "ISC",
   "main": "src/registry.js",
   "name": "@creekburn/registry",
-  "type": "module",
-  "version": "0.0.0",
-  "types": "./types/registry.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -53,6 +50,9 @@
     "test": "c8 ava",
     "tsc": "tsc src/registry.js --declaration --declarationMap --allowJs --emitDeclarationOnly --outDir types"
   },
+  "type": "module",
+  "types": "./types/registry.d.ts",
+  "version": "0.0.0",
   "workspaces": [
     "packages/test-module",
     "packages/test-esm-module"
