@@ -1,0 +1,11 @@
+{
+  "name": "@creekburn/registry-test-esm-module",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Test ESM Module used to validate regitry is working.",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo no tests"
+  },
+  "license": "ISC"
+}
