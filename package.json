@@ -46,7 +46,6 @@
     "docs": "jsdoc2md src/*.js > ./docs/API.md",
     "eslint": "eslint .",
     "eslint:fix": "eslint . --fix",
-    "postinstall": "cpy ./hooks/* ./.git/hooks",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "test": "c8 ava",
