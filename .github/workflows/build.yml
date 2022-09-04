@@ -29,7 +29,14 @@ jobs:
         run: npm run tsc
       - id: files-changed
         name: Files Changed?
-        run: echo '::set-output name=files-changed::true'
+        run: |
+          if [[ $(git status -s) ]]; then
+            echo "::set-output name=files-changed::true"
+          else
+            echo "::set-output name=files-changed::false"
+          fi
+      - name: test output
+        run: echo ${{ steps.files-changed.output.files-changed }}
       - name: Push Generated Code
         if: ${{ steps.files-changed.output.files-changed == 'true' }}
         run: |
