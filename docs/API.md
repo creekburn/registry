@@ -27,7 +27,7 @@ Creates an identifier for a `Handler` from the parts provided.
 | --- | --- | --- |
 | packageName | <code>string</code> | Valid npm package name. |
 | version | <code>string</code> | Valid version of the npm package to use during install. |
-| handler | <code>string</code> | Name of the `Handler` in the package.   This can start will a full file path to obtain a file other than what is declared in `package.main`. |
+| handler | <code>string</code> | Name of the `Handler` in the package. This can start will a full file path to obtain a file other than what is declared in `package.main`. |
 
 <a name="module_@creekburn/registry.parseIdentifier"></a>
 

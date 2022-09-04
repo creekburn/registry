@@ -3,6 +3,8 @@
 # Run Lint Fixes
 npm run eslint:fix
 npm run prettier:fix
+npm run docs
+npm run tsc
 
 # Add changed files to index
 git add .
