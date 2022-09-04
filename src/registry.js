@@ -49,7 +49,9 @@ export const identifier = (packageName, version, handler) => {
 export const parseIdentifier = (id) => {
   const result = /^(@?[^@]+)@([^!]+)(!(.*))?$/.exec(id);
   if (result) {
-    const [__, packageName, version, _, handler = "default"] = result;
+    const packageName = result[1];
+    const version = result[2];
+    const handler = result[4] ?? "default";
     const parsed = {
       handler,
       name: packageName,
