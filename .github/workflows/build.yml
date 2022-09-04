@@ -31,12 +31,14 @@ jobs:
         name: Files Changed?
         shell: bash
         run: |
-          if [[ $(git status -s) ]]; then
-            RES=true
+          OUT=$(git status -s)
+          echo ${OUT}
+          if [ "" == "${OUT}" ]; then
+            CHANGED=false
           else
-            RES=false
+            CHANGED=true
           fi
-          echo "::set-output name=files_changed::${RES}"
+          echo "::set-output name=files_changed::${CHANGED}"
       - name: test output
         run: echo "|${{ github.ref_name }}|${{ steps.files_changed.output.files_changed }}|"
       - name: Push Generated Code
