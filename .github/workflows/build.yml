@@ -34,10 +34,13 @@ jobs:
           OUT=$(git status -s)
           echo ${OUT}
           if [ "" == "${OUT}" ]; then
+            echo "changed: false"
             CHANGED=false
           else
+            echo "changed: true"
             CHANGED=true
           fi
+          echo ${CHANGED}
           echo "::set-output name=files_changed::${CHANGED}"
       - name: test output
         run: echo "|${{ github.ref_name }}|${{ steps.files_changed.output.files_changed }}|"
