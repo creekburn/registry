@@ -1,7 +1,59 @@
 name: Demo Action
 on: [push]
+concurrency:
+  group: ${{ github.ref_name }}-build
+  cancel-in-progress: true
 jobs:
-  demo-job:
+  generation:
+    name: Source Generation
     runs-on: ubuntu-latest
+    outputs:
+      files-changed: ${{ steps.files-changed.output.files-changed }}
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Install
+        run: npm ci
+      - name: Lint Fix
+        run: npm run eslint:fix
+      - name: Prettier Fix
+        run: npm run prettier:fix
+      - name: Generate Docs
+        run: npm run docs
+      - name: Generate Typescript Types
+        run: npm run tsc
+      - id: files-changed
+        name: Files Changed?
+        run: |
+          [ -z (git status -s) ] && echo "::set-output name=files-changed::false" || echo "::set-output name=files-changed::true"
+      - name: Push Generated Code
+        if: ${{ steps.files-changed.output.files-changed == 'true' }}
+        run: |
+          git add .
+          git commit -m "Automatic Commit of Generated Files."
+          git push
+  build:
+    name: Build
+    needs: generation
+    if: needs.generation.outputs.files-changed == 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run eslint
+      - name: Prettier
+        run: npm run prettier
+      - name: Test
+        run: npm run test
