@@ -8,7 +8,7 @@ jobs:
     name: Source Generation
     runs-on: ubuntu-latest
     outputs:
-      files_changed: ${{ steps.files_changed.output.files_changed }}
+      files_changed: ${{ steps.files_changed.outputs.files_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,13 +32,13 @@ jobs:
         shell: bash
         run: |
           if [ "" == "$(git status -s)" ]; then
-            export FILES_CHANGED=false
+            FILES_CHANGED=false
           else
-            export FILES_CHANGED=true
+            FILES_CHANGED=true
           fi
           echo "::set-output name=files_changed::${FILES_CHANGED}"
       - name: test output
-        run: echo "|${{ github.ref_name }}|${FILES_CHANGED}|"
+        run: echo "|${{ github.ref_name }}|${{ steps.files_changed.outputs.files_changed }}|"
       - name: Push Generated Code
         if: ${{ steps.files_changed.output.files_changed == 'true' }}
         run: |
