@@ -31,19 +31,14 @@ jobs:
         name: Files Changed?
         shell: bash
         run: |
-          OUT=$(git status -s)
-          echo ${OUT}
-          if [ "" == "${OUT}" ]; then
-            echo "changed: false"
-            CHANGED=false
+          if [ "" == "$(git status -s)" ]; then
+            export FILES_CHANGED=false
           else
-            echo "changed: true"
-            CHANGED=true
+            export FILES_CHANGED=true
           fi
-          echo ${CHANGED}
-          echo "::set-output name=files_changed::${CHANGED}"
+          echo "::set-output name=files_changed::${FILES_CHANGED}"
       - name: test output
-        run: echo "|${{ github.ref_name }}|${{ steps.files_changed.output.files_changed }}|"
+        run: echo "|${{ github.ref_name }}|${FILES_CHANGED}|"
       - name: Push Generated Code
         if: ${{ steps.files_changed.output.files_changed == 'true' }}
         run: |
