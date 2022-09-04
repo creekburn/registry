@@ -36,7 +36,7 @@ jobs:
             echo "::set-output name=files-changed::false"
           fi
       - name: test output
-        run: echo ${{ steps.files-changed.output.files-changed }}
+        run: echo "|${{ steps.files-changed.output.files-changed }}|"
       - name: Push Generated Code
         if: ${{ steps.files-changed.output.files-changed == 'true' }}
         run: |
