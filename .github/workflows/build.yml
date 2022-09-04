@@ -39,6 +39,7 @@ jobs:
           git push
   build:
     name: Build
+    runs-on: ubuntu-latest
     needs: generation
     if: needs.generation.outputs.files-changed == 'false'
     steps:
