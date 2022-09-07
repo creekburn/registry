@@ -52,6 +52,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
       - name: Continue Job
+        if: steps.files_changed.outputs.files_changed == 'true'
         run: echo "::set-output name=files_changed::false"
   build:
     name: Build
