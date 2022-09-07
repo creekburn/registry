@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Node Setup
         uses: actions/setup-node@v3
         with:
@@ -40,9 +42,16 @@ jobs:
       - name: Push Generated Code
         if: steps.files_changed.outputs.files_changed == 'true'
         run: |
+          git config --global user.email "automation@example.com"
+          git config --global user.name "Automation"
           git add .
           git commit -m "Automatic Commit of Generated Files."
-          git push
+      - name: Push changes
+        if: steps.files_changed.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
   build:
     name: Build
     runs-on: ubuntu-latest
