@@ -8,7 +8,7 @@ jobs:
     name: Source Generation
     runs-on: ubuntu-latest
     outputs:
-      files_changed: ${{ steps.files_changed.outputs.files_changed }}
+      FILES_CHANGED: ${{ steps.files_changed.outputs.FILES_CHANGED }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,32 +33,31 @@ jobs:
         name: Files Changed?
         run: |
           if [ "" == "$(git status -s)" ]; then
-            FILES_CHANGED=false
+            echo "FILES_CHANGED=false" >> $GITHUB_OUTPUT
           else
-            FILES_CHANGED=true
+            echo "FILES_CHANGED=true" >> $GITHUB_OUTPUT
           fi
-          echo "::set-output name=files_changed::${FILES_CHANGED}"
       - name: Push Generated Code
-        if: steps.files_changed.outputs.files_changed == 'true'
+        if: steps.files_changed.outputs.FILES_CHANGED == 'true'
         run: |
-          git config --global user.email "automation@example.com"
-          git config --global user.name "Automation"
+          git config --global user.email "github-action@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
           git add .
           git commit -m "Automatic Commit of Generated Files."
       - name: Push changes
-        if: steps.files_changed.outputs.files_changed == 'true'
+        if: steps.files_changed.outputs.FILES_CHANGED == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
       - name: Continue Job
-        if: steps.files_changed.outputs.files_changed == 'true'
-        run: echo "::set-output name=files_changed::false"
+        if: steps.files_changed.outputs.FILES_CHANGED == 'true'
+        run: echo "FILES_CHANGED=false" >> $GITHUB_OUTPUT
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: generation
-    if: needs.generation.outputs.files_changed == 'false'
+    if: needs.generation.outputs.FILES_CHANGED == 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
