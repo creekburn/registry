@@ -1,5 +1,8 @@
 name: Build Piepline
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - main
 concurrency:
   group: ${{ github.ref_name }}-build
   cancel-in-progress: true
@@ -74,5 +77,43 @@ jobs:
         run: npm run eslint
       - name: Prettier
         run: npm run prettier
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Install
+        run: npm ci
       - name: Test
         run: npm run test
+  archive:
+    name: Archive
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Package
+        id: package
+        run: echo "TAR=$(npm pack -s)" >> $GITHUB_OUTPUT
+      - name: Archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ steps.package.outputs.TAR }}"
+          path: "${{ steps.package.outputs.TAR }}"

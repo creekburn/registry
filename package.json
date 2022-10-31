@@ -49,7 +49,8 @@
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "test": "c8 ava",
-    "tsc": "tsc src/registry.js --declaration --declarationMap --allowJs --emitDeclarationOnly --outDir types"
+    "tsc": "tsc src/registry.js --declaration --declarationMap --allowJs --emitDeclarationOnly --outDir types",
+    "version": "node -e \"console.log(process.env.npm_package_version)\""
   },
   "type": "module",
   "types": "./types/registry.d.ts",
