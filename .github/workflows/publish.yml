@@ -55,12 +55,7 @@ jobs:
         with:
           name: "${{ inputs.archive }}"
       - name: Publish
-        run: |
-          ls -l .
-          ls -l ~/
-          cat ~/.npmrc
-          npm whoami
-          npm publish "${{ inputs.archive }}" --access public
+        run: yarn publish "${{ inputs.archive }}" --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
   version:
