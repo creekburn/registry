@@ -68,6 +68,6 @@ jobs:
   start-publish:
     name: Start Publish
     needs: archive
-    uses: /.github/workflows/build.yml
+    uses: ./.github/workflows/build.yml
     with:
       archive: ${{ needs.archive.outputs.ARCHIVE }}

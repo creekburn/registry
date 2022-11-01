@@ -58,4 +58,4 @@ jobs:
     name: Start Build
     needs: generation
     if: needs.generation.outputs.FILES_CHANGED == 'false'
-    uses: /.github/workflows/build.yml
+    uses: ./.github/workflows/build.yml
