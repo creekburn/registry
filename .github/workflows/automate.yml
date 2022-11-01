@@ -1,4 +1,4 @@
-name: Pipeline
+name: Automation
 on:
   push:
     branches-ignore:
