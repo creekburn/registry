@@ -47,15 +47,21 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: "npm"
-          registry-url: "https://registry.npmjs.org"
-          scope: creekburn
+          cache: npm
+          registry-url: https://registry.npmjs.org
       - name: Download Archive
         uses: actions/download-artifact@v3
         with:
           name: "${{ inputs.archive }}"
       - name: Publish
-        run: yarn publish "${{ inputs.archive }}" --access public
+        run: |
+          cat <<EOF > .npmrc
+          //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+          @creekburn:registry=https://registry.npmjs.org/
+          always-auth=true
+          EOF
+          ls -l .
+          npm publish "${{ inputs.archive }}" --access public --userconfig ./.npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
   version:
