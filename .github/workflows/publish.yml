@@ -1,0 +1,85 @@
+name: Version Piepline
+on:
+  pull_request_review:
+    types: [submitted]
+concurrency:
+  group: ${{ github.ref_name }}-version
+  cancel-in-progress: true
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    if: github.event.review.state == 'approved'
+    outputs:
+      VERSION: ${{ steps.variable.outputs.VERSION }}
+      TAGGED: ${{ steps.variable.outputs.TAGGED }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Set Variables
+        id: variable
+        run: |
+          VERSION=$(npm run get:version -s)
+
+          if [ $(git tag -l "v$VERSION") ]; then
+            echo "Tag [v$VERSION] already exists.  Set a new version by running `npm version $NEW_VERSION --no-git-tag-version` locally, and pushing the changes."
+            exit 1
+          else
+
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "ARCHIVE=$(npm pack -s)" >> $GITHUB_OUTPUT
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Download Archive
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ needs.setup.outputs.ARCHIVE }}"
+      - name: Publish
+        run: npm publish "${{ needs.setup.outputs.ARCHIVE }}" --tag "v${{ steps.variable.outputs.VERSION }}" --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+  version:
+    name: Version
+    needs:
+      - setup
+      - publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Bump Version
+        run: npm version patch --no-git-tag-version
+      - name: Save New Version
+        run: echo "NEW_VERSION=$(npm run get:version -s)" >> $GITHUB_ENV
+      - name: Check Tag Format
+        run: git check-ref-format --allow-onelevel "v${{ needs.setup.outputs.VERSION }}"
+      - name: Configure Git
+        run: |
+          git config user.email "github-action@users.noreply.github.com"
+          git config user.name "GitHub Action"
+      - name: Tag
+        run: git tag -m "Auto Freeze version at [v${{ needs.setup.outputs.VERSION }}]" "v${{ needs.setup.outputs.VERSION }}" $GITHUB_SHA
+      - name: Add
+        run: git add .
+      - name: Commit
+        run: git commit -m "Auto Version set HEAD to [${{ env.NEW_VERSION }}]"
+      - name: Push
+        run: git push --follow-tags origin $GITHUB_REF_NAME

@@ -46,11 +46,11 @@
     "docs": "jsdoc2md src/*.js > ./docs/API.md",
     "eslint": "eslint .",
     "eslint:fix": "eslint . --fix",
+    "get:version": "node -e \"console.log(process.env.npm_package_version)\"",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "test": "c8 ava",
-    "tsc": "tsc src/registry.js --declaration --declarationMap --allowJs --emitDeclarationOnly --outDir types",
-    "version": "node -e \"console.log(process.env.npm_package_version)\""
+    "tsc": "tsc src/registry.js --declaration --declarationMap --allowJs --emitDeclarationOnly --outDir types"
   },
   "type": "module",
   "types": "./types/registry.d.ts",
