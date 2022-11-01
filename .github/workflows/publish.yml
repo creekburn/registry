@@ -55,7 +55,7 @@ jobs:
           name: "${{ inputs.archive }}"
       - name: Publish
         run: |
-          cat <<EOF > .npmrc
+          cat <<EOF > ./.npmrc
           //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
           @creekburn:registry=https://registry.npmjs.org/
           always-auth=true
