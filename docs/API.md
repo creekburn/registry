@@ -89,5 +89,5 @@ Parsed Identifier Information
 | name | <code>string</code> | npm package name |
 | version | <code>string</code> | version of the npm package |
 | handler | <code>string</code> | `Handler` within the package. |
-| [path] | <code>string</code> | Path to file within package, instead of whats decalred in the `package.main`. |
+| [path] | <code>string</code> | Path to file within package, instead of whats decalred in `package.main`. |
 
