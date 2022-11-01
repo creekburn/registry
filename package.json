@@ -54,7 +54,7 @@
   },
   "type": "module",
   "types": "./types/registry.d.ts",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "workspaces": [
     "packages/test-module",
     "packages/test-esm-module"
