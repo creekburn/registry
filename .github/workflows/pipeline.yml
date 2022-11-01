@@ -59,3 +59,5 @@ jobs:
     needs: generation
     if: needs.generation.outputs.FILES_CHANGED == 'false'
     uses: ./.github/workflows/build.yml
+    secrets:
+      NPM_PUBLISH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}

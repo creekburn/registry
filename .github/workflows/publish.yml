@@ -6,6 +6,9 @@ on:
         required: true
         type: string
         description: Name of the Archive to publish.
+    secrets:
+      NPM_PUBLISH_TOKEN:
+        required: true
 concurrency:
   group: ${{ github.ref_name }}-publish
   cancel-in-progress: true

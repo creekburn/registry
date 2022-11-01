@@ -1,5 +1,9 @@
 name: Build
-on: workflow_call
+on:
+  workflow_call:
+    secrets:
+      NPM_PUBLISH_TOKEN:
+        required: true
 concurrency:
   group: ${{ github.ref_name }}-build
   cancel-in-progress: true
@@ -71,3 +75,5 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with:
       archive: ${{ needs.archive.outputs.ARCHIVE }}
+    secrets:
+      NPM_PUBLISH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
