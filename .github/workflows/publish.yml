@@ -56,7 +56,7 @@ jobs:
           name: "${{ inputs.archive }}"
       - name: Publish
         run: |
-          cat .npmrc
+          cat ./.npmrc
           npm whoami
           npm publish "${{ inputs.archive }}" --access public
         env:
