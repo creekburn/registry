@@ -1,7 +1,8 @@
 name: Version Piepline
 on:
-  pull_request_review:
-    types: [submitted]
+  pull_request:
+    branches:
+      - master
 concurrency:
   group: ${{ github.ref_name }}-version
   cancel-in-progress: true
