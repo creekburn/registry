@@ -55,7 +55,9 @@ jobs:
         with:
           name: "${{ inputs.archive }}"
       - name: Publish
-        run: npm publish "${{ inputs.archive }}" --access public --regsitry=https://registry.npmjs.org --userconfig=./.npmrc
+        run: |
+          npm whoami
+          npm publish "${{ inputs.archive }}" --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
   version:
