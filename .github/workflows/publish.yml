@@ -1,21 +1,26 @@
-name: Version Piepline
+name: Publish
 on:
-  pull_request:
-    branches:
-      - master
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - completed
 concurrency:
-  group: ${{ github.ref_name }}-version
+  group: ${{ github.event.workflow_run.head_branch }}-publish
   cancel-in-progress: true
 jobs:
   setup:
     name: Setup
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
     outputs:
       VERSION: ${{ steps.variable.outputs.VERSION }}
-      TAGGED: ${{ steps.variable.outputs.TAGGED }}
+      ARCHIVE: ${{ steps.variable.outputs.ARCHIVE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Node Setup
         uses: actions/setup-node@v3
         with:
@@ -30,9 +35,9 @@ jobs:
             echo "Tag [v$VERSION] already exists.  Set a new version by running `npm version $NEW_VERSION --no-git-tag-version` locally, and pushing the changes."
             exit 1
           else
-
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "ARCHIVE=$(npm pack -s)" >> $GITHUB_OUTPUT
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "ARCHIVE=$(npm pack -s)" >> $GITHUB_OUTPUT
+          fi
   publish:
     name: Publish
     runs-on: ubuntu-latest
@@ -48,7 +53,7 @@ jobs:
         with:
           name: "${{ needs.setup.outputs.ARCHIVE }}"
       - name: Publish
-        run: npm publish "${{ needs.setup.outputs.ARCHIVE }}" --tag "v${{ steps.variable.outputs.VERSION }}" --access public
+        run: npm publish "${{ needs.setup.outputs.ARCHIVE }}" --tag "${{ steps.variable.outputs.VERSION }}" --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
   version:
@@ -60,6 +65,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Node Setup
         uses: actions/setup-node@v3
         with:
@@ -76,10 +83,10 @@ jobs:
           git config user.email "github-action@users.noreply.github.com"
           git config user.name "GitHub Action"
       - name: Tag
-        run: git tag -m "Auto Freeze version at [v${{ needs.setup.outputs.VERSION }}]" "v${{ needs.setup.outputs.VERSION }}" $GITHUB_SHA
+        run: git tag -m "Auto Freeze version at [${{ needs.setup.outputs.VERSION }}]" "v${{ needs.setup.outputs.VERSION }}" ${{ github.event.workflow_run.head_sha }}
       - name: Add
         run: git add .
       - name: Commit
-        run: git commit -m "Auto Version set HEAD to [${{ env.NEW_VERSION }}]"
+        run: git commit -m "Auto Version set ${{ github.event.workflow_run.head_branch }}/HEAD to [${{ env.NEW_VERSION }}]"
       - name: Push
-        run: git push --follow-tags origin $GITHUB_REF_NAME
+        run: git push --follow-tags origin ${{ github.event.workflow_run.head_branch }}

@@ -1,4 +1,4 @@
-name: Build Piepline
+name: Build
 on:
   push:
     branches-ignore:
