@@ -1,4 +1,4 @@
-export function identifier(packageName: string, version: string, handler: string): string;
+export function identifier(packageName: string, version: string, handler?: string): string;
 export function parseIdentifier(id: string): ParsedIdentifier;
 export function lookup(id: string): Function;
 /**

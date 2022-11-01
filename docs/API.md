@@ -4,7 +4,7 @@
 
 * [@creekburn/registry](#module_@creekburn/registry)
     * _static_
-        * [.identifier(packageName, version, handler)](#module_@creekburn/registry.identifier) ⇒ <code>string</code>
+        * [.identifier(packageName, version, [handler])](#module_@creekburn/registry.identifier) ⇒ <code>string</code>
         * [.parseIdentifier(id)](#module_@creekburn/registry.parseIdentifier) ⇒ <code>ParsedIdentifier</code>
         * [.lookup(id)](#module_@creekburn/registry.lookup) ⇒ <code>function</code>
     * _inner_
@@ -12,7 +12,7 @@
 
 <a name="module_@creekburn/registry.identifier"></a>
 
-### @creekburn/registry.identifier(packageName, version, handler) ⇒ <code>string</code>
+### @creekburn/registry.identifier(packageName, version, [handler]) ⇒ <code>string</code>
 Creates an identifier for a `Handler` from the parts provided.
 
 **Kind**: static method of [<code>@creekburn/registry</code>](#module_@creekburn/registry)  
@@ -27,7 +27,7 @@ Creates an identifier for a `Handler` from the parts provided.
 | --- | --- | --- |
 | packageName | <code>string</code> | Valid npm package name. |
 | version | <code>string</code> | Valid version of the npm package to use during install. |
-| handler | <code>string</code> | Name of the `Handler` in the package. This can start will a full file path to obtain a file other than what is declared in `package.main`. |
+| [handler] | <code>string</code> | Name of the `Handler` in the package. This can start will a full file path to obtain a file other than what is declared in `package.main`. Using `"default"` or not providing a `handler` will create an identifier without a `!` separator. |
 
 <a name="module_@creekburn/registry.parseIdentifier"></a>
 
