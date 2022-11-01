@@ -1,4 +1,4 @@
-name: Source Generation
+name: Pipeline
 on:
   workflow_dispatch: {}
   push:
