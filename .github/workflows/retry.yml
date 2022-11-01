@@ -1,7 +1,7 @@
 name: Retry
 on: workflow_dispatch
 concurrency:
-  group: ${{ github.ref_name }}-retry
+  group: ${{ github.ref_name }}-automate
   cancel-in-progress: true
 jobs:
   retry:

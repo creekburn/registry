@@ -11,8 +11,9 @@ import packageNameValidator from "validate-npm-package-name";
  * @function
  * @param {string} packageName Valid npm package name.
  * @param {string} version Valid version of the npm package to use during install.
- * @param {string} handler Name of the `Handler` in the package.
+ * @param {string} [handler] Name of the `Handler` in the package.
  * This can start will a full file path to obtain a file other than what is declared in `package.main`.
+ * Using `"default"` or not providing a `handler` will create an identifier without a `!` separator.
  * @returns {string} Constructed Identifier for a `Handler`.
  * @throws When `packageName` is not a vald npm package name.
  */
