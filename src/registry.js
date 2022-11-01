@@ -69,6 +69,14 @@ export const parseIdentifier = (id) => {
 
 /**
  * Retrieve a `Handler` from a previously installed npm package.
+ *
+ * @example <caption>Obtain Default Export Handler</caption>
+ * const handler = await lookup("package-name@0.0.0");
+ * @example <caption>Obtain Named Export Handler</caption>
+ * const handler = await lookup("package-name@0.0.0!handler");
+ * @example <caption>Obtain Handler from path in Module</caption>
+ * const handler = await lookup("package-name@0.0.0!/path/to/file.js/handler");
+ *
  * @public
  * @function
  * @async
