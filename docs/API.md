@@ -64,6 +64,18 @@ Retrieve a `Handler` from a previously installed npm package.
 | --- | --- | --- |
 | id | <code>string</code> | Identifier to lookup. |
 
+**Example** *(Obtain Default Export Handler)*  
+```js
+const handler = await lookup("package-name@0.0.0");
+```
+**Example** *(Obtain Named Export Handler)*  
+```js
+const handler = await lookup("package-name@0.0.0!handler");
+```
+**Example** *(Obtain Handler from path in Module)*  
+```js
+const handler = await lookup("package-name@0.0.0!/path/to/file.js/handler");
+```
 <a name="module_@creekburn/registry..ParsedIdentifier"></a>
 
 ### @creekburn/registry~ParsedIdentifier : <code>Object</code>
@@ -77,5 +89,5 @@ Parsed Identifier Information
 | name | <code>string</code> | npm package name |
 | version | <code>string</code> | version of the npm package |
 | handler | <code>string</code> | `Handler` within the package. |
-| [path] | <code>string</code> | Path to file within package, instead of whats decalred in the `package.main`. |
+| [path] | <code>string</code> | Path to file within package, instead of whats decalred in `package.main`. |
 

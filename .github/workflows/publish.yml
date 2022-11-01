@@ -1,0 +1,93 @@
+name: Publish
+on:
+  workflow_call:
+    inputs:
+      archive:
+        required: true
+        type: string
+        description: Name of the Archive to publish.
+    secrets:
+      NPM_PUBLISH_TOKEN:
+        required: true
+concurrency:
+  group: ${{ github.ref_name }}-publish
+  cancel-in-progress: true
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      VERSION: ${{ steps.variable.outputs.VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Set Variables
+        id: variable
+        run: |
+          VERSION=$(npm run get:version -s)
+
+          if [ $(git tag -l "v$VERSION") ]; then
+            echo "Tag [v$VERSION] already exists.  Set a new version by running `npm version --no-git-tag-version $NEW_VERSION` locally, and pushing the changes."
+            exit 1
+          else
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          fi
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+          registry-url: https://registry.npmjs.org
+          scope: creekburn
+      - name: Download Archive
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ inputs.archive }}"
+      - name: Publish
+        run: |
+          cat $NPM_CONFIG_USERCONFIG
+          npm publish "${{ inputs.archive }}" --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+  version:
+    name: Version
+    needs:
+      - setup
+      - publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+      - name: Bump Version
+        run: npm version --no-git-tag-version patch
+      - name: Save New Version
+        run: echo "NEW_VERSION=$(npm run get:version -s)" >> $GITHUB_ENV
+      - name: Check Tag Format
+        run: git check-ref-format --allow-onelevel "v${{ needs.setup.outputs.VERSION }}"
+      - name: Tag and Push
+        run: |
+          git config user.email "github-action@users.noreply.github.com"
+          git config user.name "GitHub Action"
+          git tag -m "Auto Freeze version at [${{ needs.setup.outputs.VERSION }}]" "v${{ needs.setup.outputs.VERSION }}" $GITHUB_SHA
+          git add .
+          git commit -m "Auto Version of branch $GITHUB_REF to [${{ env.NEW_VERSION }}]"
+          git push --follow-tags origin $GITHUB_REF

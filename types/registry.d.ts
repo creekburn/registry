@@ -18,7 +18,7 @@ export type ParsedIdentifier = {
      */
     handler: string;
     /**
-     * - Path to file within package, instead of whats decalred in the `package.main`.
+     * - Path to file within package, instead of whats decalred in `package.main`.
      */
     path?: string;
 };

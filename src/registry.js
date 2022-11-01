@@ -35,7 +35,7 @@ export const identifier = (packageName, version, handler) => {
  * @property {string} name - npm package name
  * @property {string} version - version of the npm package
  * @property {string} handler - `Handler` within the package.
- * @property {string} [path] - Path to file within package, instead of whats decalred in the `package.main`.
+ * @property {string} [path] - Path to file within package, instead of whats decalred in `package.main`.
  */
 
 /**
@@ -49,7 +49,9 @@ export const identifier = (packageName, version, handler) => {
 export const parseIdentifier = (id) => {
   const result = /^(@?[^@]+)@([^!]+)(!(.*))?$/.exec(id);
   if (result) {
-    const [__, packageName, version, _, handler = "default"] = result;
+    const packageName = result[1];
+    const version = result[2];
+    const handler = result[4] ?? "default";
     const parsed = {
       handler,
       name: packageName,
@@ -67,6 +69,14 @@ export const parseIdentifier = (id) => {
 
 /**
  * Retrieve a `Handler` from a previously installed npm package.
+ *
+ * @example <caption>Obtain Default Export Handler</caption>
+ * const handler = await lookup("package-name@0.0.0");
+ * @example <caption>Obtain Named Export Handler</caption>
+ * const handler = await lookup("package-name@0.0.0!handler");
+ * @example <caption>Obtain Handler from path in Module</caption>
+ * const handler = await lookup("package-name@0.0.0!/path/to/file.js/handler");
+ *
  * @public
  * @function
  * @async
