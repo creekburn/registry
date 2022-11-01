@@ -49,6 +49,7 @@ jobs:
           node-version: 16
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
+          scope: creekburn
       - name: Download Archive
         uses: actions/download-artifact@v3
         with:
