@@ -1,0 +1,14 @@
+name: Pipeline
+on:
+  push:
+    branches-ignore:
+      - master
+concurrency:
+  group: ${{ github.ref_name }}-automate
+  cancel-in-progress: true
+jobs:
+  start:
+    name: Start
+    uses: ./.github/workflows/build.yml
+    secrets:
+      NPM_PUBLISH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}

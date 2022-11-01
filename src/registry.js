@@ -35,7 +35,7 @@ export const identifier = (packageName, version, handler) => {
  * @property {string} name - npm package name
  * @property {string} version - version of the npm package
  * @property {string} handler - `Handler` within the package.
- * @property {string} [path] - Path to file within package, instead of whats decalred in the `package.main`.
+ * @property {string} [path] - Path to file within package, instead of whats decalred in `package.main`.
  */
 
 /**
