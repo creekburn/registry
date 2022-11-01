@@ -1,26 +1,23 @@
 name: Publish
 on:
-  workflow_run:
-    workflows:
-      - Build
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      archive:
+        required: true
+        type: string
+        description: Name of the Archive to publish.
 concurrency:
-  group: ${{ github.event.workflow_run.head_branch }}-publish
+  group: ${{ github.ref_name }}-publish
   cancel-in-progress: true
 jobs:
   setup:
     name: Setup
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
     outputs:
       VERSION: ${{ steps.variable.outputs.VERSION }}
-      ARCHIVE: ${{ steps.variable.outputs.ARCHIVE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Node Setup
         uses: actions/setup-node@v3
         with:
@@ -32,11 +29,10 @@ jobs:
           VERSION=$(npm run get:version -s)
 
           if [ $(git tag -l "v$VERSION") ]; then
-            echo "Tag [v$VERSION] already exists.  Set a new version by running `npm version $NEW_VERSION --no-git-tag-version` locally, and pushing the changes."
+            echo "Tag [v$VERSION] already exists.  Set a new version by running `npm version --no-git-tag-version $NEW_VERSION` locally, and pushing the changes."
             exit 1
           else
             echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-            echo "ARCHIVE=$(npm pack -s)" >> $GITHUB_OUTPUT
           fi
   publish:
     name: Publish
@@ -51,42 +47,35 @@ jobs:
       - name: Download Archive
         uses: actions/download-artifact@v3
         with:
-          name: "${{ needs.setup.outputs.ARCHIVE }}"
+          name: "${{ inputs.archive }}"
       - name: Publish
-        run: npm publish "${{ needs.setup.outputs.ARCHIVE }}" --tag "${{ steps.variable.outputs.VERSION }}" --access public
+        run: npm publish "${{ inputs.archive }}" --tag "${{ steps.variable.outputs.VERSION }}" --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
   version:
     name: Version
     needs:
       - setup
-      - publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Node Setup
         uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: "npm"
       - name: Bump Version
-        run: npm version patch --no-git-tag-version
+        run: npm version --no-git-tag-version patch
       - name: Save New Version
         run: echo "NEW_VERSION=$(npm run get:version -s)" >> $GITHUB_ENV
       - name: Check Tag Format
         run: git check-ref-format --allow-onelevel "v${{ needs.setup.outputs.VERSION }}"
-      - name: Configure Git
+      - name: Tag and Push
         run: |
           git config user.email "github-action@users.noreply.github.com"
           git config user.name "GitHub Action"
-      - name: Tag
-        run: git tag -m "Auto Freeze version at [${{ needs.setup.outputs.VERSION }}]" "v${{ needs.setup.outputs.VERSION }}" ${{ github.event.workflow_run.head_sha }}
-      - name: Add
-        run: git add .
-      - name: Commit
-        run: git commit -m "Auto Version set ${{ github.event.workflow_run.head_branch }}/HEAD to [${{ env.NEW_VERSION }}]"
-      - name: Push
-        run: git push --follow-tags origin ${{ github.event.workflow_run.head_branch }}
+          git tag -m "Auto Freeze version at [${{ needs.setup.outputs.VERSION }}]" "v${{ needs.setup.outputs.VERSION }}" $GITHUB_SHA
+          git add .
+          git commit -m "Auto Version of branch $GITHUB_REF to [${{ env.NEW_VERSION }}]"
+          git push --follow-tags origin $GITHUB_REF

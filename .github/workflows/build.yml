@@ -1,66 +1,12 @@
 name: Build
-on:
-  push:
-    branches-ignore:
-      - main
+on: workflow_call
 concurrency:
   group: ${{ github.ref_name }}-build
   cancel-in-progress: true
 jobs:
-  generation:
-    name: Source Generation
+  check:
+    name: Check
     runs-on: ubuntu-latest
-    outputs:
-      FILES_CHANGED: ${{ steps.files_changed.outputs.FILES_CHANGED }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Node Setup
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: "npm"
-      - name: Install
-        run: npm ci
-      - name: Lint Fix
-        run: npm run eslint:fix
-      - name: Prettier Fix
-        run: npm run prettier:fix
-      - name: Generate Docs
-        run: npm run docs
-      - name: Generate Typescript Types
-        run: npm run tsc
-      - id: files_changed
-        name: Files Changed?
-        run: |
-          if [ "" == "$(git status -s)" ]; then
-            echo "FILES_CHANGED=false" >> $GITHUB_OUTPUT
-          else
-            echo "FILES_CHANGED=true" >> $GITHUB_OUTPUT
-          fi
-      - name: Push Generated Code
-        if: steps.files_changed.outputs.FILES_CHANGED == 'true'
-        run: |
-          git config --global user.email "github-action@users.noreply.github.com"
-          git config --global user.name "GitHub Action"
-          git add .
-          git commit -m "Automatic Commit of Generated Files."
-      - name: Push changes
-        if: steps.files_changed.outputs.FILES_CHANGED == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
-      - name: Continue Job
-        if: steps.files_changed.outputs.FILES_CHANGED == 'true'
-        run: echo "FILES_CHANGED=false" >> $GITHUB_OUTPUT
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: generation
-    if: needs.generation.outputs.FILES_CHANGED == 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -80,7 +26,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: build
+    needs: check
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -99,6 +45,8 @@ jobs:
     name: Archive
     runs-on: ubuntu-latest
     needs: test
+    outputs:
+      ARCHIVE: ${{ steps.package.outputs.ARCHIVE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -111,9 +59,15 @@ jobs:
           cache: "npm"
       - name: Package
         id: package
-        run: echo "TAR=$(npm pack -s)" >> $GITHUB_OUTPUT
+        run: echo "ARCHIVE=$(npm pack -s)" >> $GITHUB_OUTPUT
       - name: Archive
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.package.outputs.TAR }}"
-          path: "${{ steps.package.outputs.TAR }}"
+          name: "${{ steps.package.outputs.ARCHIVE }}"
+          path: "${{ steps.package.outputs.ARCHIVE }}"
+  start-publish:
+    name: Start Publish
+    needs: archive
+    uses: .github/workflows/build.yml
+    with:
+      archive: ${{ needs.archive.outputs.ARCHIVE }}
