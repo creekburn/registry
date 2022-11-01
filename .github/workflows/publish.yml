@@ -55,13 +55,8 @@ jobs:
           name: "${{ inputs.archive }}"
       - name: Publish
         run: |
-          cat <<EOF > ./.npmrc
-          //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
-          @creekburn:registry=https://registry.npmjs.org/
-          always-auth=true
-          EOF
-          ls -l .
-          npm publish "${{ inputs.archive }}" --access public --userconfig ./.npmrc
+          cat $NPM_CONFIG_USERCONFIG
+          npm publish "${{ inputs.archive }}" --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
   version:
